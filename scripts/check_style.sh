@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+. scripts/report_error.sh
+
+trap report_error_to_github EXIT
+
+set -e
+
 REPO_ROOT="$(dirname "$0")"/..
 
 (
@@ -8,8 +14,8 @@ WHITESPACE=$(git grep -n -I -E "^.*[[:space:]]+$" | grep -v "test/libsolidity/AS
 
 if [[ "$WHITESPACE" != "" ]]
 then
-	echo "Error: Trailing whitespace found:" >&2
-	echo "$WHITESPACE" >&2
+	echo "Error: Trailing whitespace found:" >&2 > $ERROR_LOG
+	echo "$WHITESPACE" >&2 > $ERROR_LOG
 	exit 1
 fi
 )
@@ -25,8 +31,8 @@ git grep -nIE "\<if\>\s*\(.*\)\s*\{\s*$" -- '*.h' '*.cpp'
 
 if [[ "$FORMATERROR" != "" ]]
 then
-	echo "Error: Format error for if/for:" >&2
-	echo "$FORMATERROR" >&2
+	echo "Error: Format error for if/for:" >&2 > $ERROR_LOG
+	echo "$FORMATERROR" >&2 > $ERROR_LOG
 	exit 1
 fi
 )
